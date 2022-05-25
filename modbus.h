@@ -86,6 +86,7 @@ using SOCKADDR_IN = struct sockaddr_in;
 #define EX_BAD_DATA 0XFF         // Bad Data lenght or Address
 
 #define BAD_CON -1
+#define ERROR -2
 
 /// Modbus Operator Class
 /**
@@ -97,7 +98,6 @@ class modbus
 
 public:
     bool err{};
-    int err_no{};
     std::string error_msg;
 
     modbus(std::string host, uint16_t port);
@@ -162,7 +162,6 @@ inline modbus::modbus(std::string host, uint16_t port = 502)
     _msg_id = 1;
     _connected = false;
     err = false;
-    err_no = 0;
     error_msg = "";
 }
 
@@ -370,7 +369,7 @@ inline int modbus::modbus_read_holding_registers(uint16_t address, uint16_t amou
         }
         modbuserror_handle(to_rec, READ_REGS);
         if (err)
-            return err_no;
+            return ERROR;
         for (auto i = 0; i < amount; i++)
         {
             buffer[i] = ((uint16_t)to_rec[9u + 2u * i]) << 8u;
@@ -406,7 +405,7 @@ inline int modbus::modbus_read_input_registers(uint16_t address, uint16_t amount
         }
         modbuserror_handle(to_rec, READ_INPUT_REGS);
         if (err)
-            return err_no;
+            return ERROR;
         for (auto i = 0; i < amount; i++)
         {
             buffer[i] = ((uint16_t)to_rec[9u + 2u * i]) << 8u;
@@ -447,7 +446,7 @@ inline int modbus::modbus_read_coils(uint16_t address, uint16_t amount, bool *bu
         }
         modbuserror_handle(to_rec, READ_COILS);
         if (err)
-            return err_no;
+            return ERROR;
         for (auto i = 0; i < amount; i++)
         {
             buffer[i] = (bool)((to_rec[9u + i / 8u] >> (i % 8u)) & 1u);
@@ -486,7 +485,7 @@ inline int modbus::modbus_read_input_bits(uint16_t address, uint16_t amount, boo
             return BAD_CON;
         }
         if (err)
-            return err_no;
+            return ERROR;
         for (auto i = 0; i < amount; i++)
         {
             buffer[i] = (bool)((to_rec[9u + i / 8u] >> (i % 8u)) & 1u);
@@ -521,7 +520,7 @@ inline int modbus::modbus_write_coil(uint16_t address, const bool &to_write)
         }
         modbuserror_handle(to_rec, WRITE_COIL);
         if (err)
-            return err_no;
+            return ERROR;
         return 0;
     }
     else
@@ -551,7 +550,7 @@ inline int modbus::modbus_write_register(uint16_t address, const uint16_t &value
         }
         modbuserror_handle(to_rec, WRITE_COIL);
         if (err)
-            return err_no;
+            return ERROR;
         return 0;
     }
     else
@@ -588,7 +587,7 @@ inline int modbus::modbus_write_coils(uint16_t address, uint16_t amount, const b
         }
         modbuserror_handle(to_rec, WRITE_COILS);
         if (err)
-            return err_no;
+            return ERROR;
         return 0;
     }
     else
@@ -619,7 +618,7 @@ inline int modbus::modbus_write_registers(uint16_t address, uint16_t amount, con
         }
         modbuserror_handle(to_rec, WRITE_REGS);
         if (err)
-            return err_no;
+            return ERROR;
         return 0;
     }
     else
